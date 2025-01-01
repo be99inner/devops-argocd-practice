@@ -93,7 +93,7 @@ karpenter:
     - key: CriticalAddonsOnly
       operator: Exists
     - key: control-plane
-      operator: Equals
+      operator: Equal
       value: "true"
       effect: NoSchedule
   # -- Additional volumes for the pod.
