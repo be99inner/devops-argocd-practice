@@ -1,0 +1,69 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  template:
+    spec:
+      # References the Cloud Provider's NodeClass resource, see your cloud provider specific documentation
+      nodeClassRef:
+        name: karpenter-default
+
+      # # Provisioned nodes will have these taints
+      # # Taints may prevent pods from scheduling if they are not tolerated by the pod.
+      # taints:
+      #   - key: example.com/special-taint
+      #     effect: NoSchedule
+
+      # # Provisioned nodes will have these taints, but pods do not need to tolerate these taints to be provisioned by this
+      # # NodePool. These taints are expected to be temporary and some other entity (e.g. a DaemonSet) is responsible for
+      # # removing the taint after it has finished initializing the node.
+      # startupTaints:
+      #   - key: example.com/another-taint
+      #     effect: NoSchedule
+
+      # # The amount of time a Node can live on the cluster before being removed
+      # # Avoiding long-running Nodes helps to reduce security vulnerabilities as well as to reduce the chance of issues that can plague Nodes with long uptimes such as file fragmentation or memory leaks from system processes
+      # # You can choose to disable expiration entirely by setting the string value 'Never' here
+      #
+      # # Note: changing this value in the nodepool will drift the nodeclaims.
+      # expireAfter: 720h | Never
+      #
+      # # The amount of time that a node can be draining before it's forcibly deleted. A node begins draining when a delete call is made against it, starting
+      # # its finalization flow. Pods with TerminationGracePeriodSeconds will be deleted preemptively before this terminationGracePeriod ends to give as much time to cleanup as possible.
+      # # If your pod's terminationGracePeriodSeconds is larger than this terminationGracePeriod, Karpenter may forcibly delete the pod
+      # # before it has its full terminationGracePeriod to cleanup.
+      #
+      # # Note: changing this value in the nodepool will drift the nodeclaims.
+      # terminationGracePeriod: 48h
+
+      # Requirements that constrain the parameters of provisioned nodes.
+      # These requirements are combined with pod.spec.topologySpreadConstraints, pod.spec.affinity.nodeAffinity, pod.spec.affinity.podAffinity, and pod.spec.nodeSelector rules.
+      # Operators { In, NotIn, Exists, DoesNotExist, Gt, and Lt } are supported.
+      # https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#operators
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: In
+          values: ["c", "m", "r"]
+        - key: "karpenter.k8s.aws/instance-family"
+          operator: In
+          values: ["m5","m5d","c5","c5d","c4","r4"]
+        - key: "karpenter.k8s.aws/instance-cpu"
+          operator: In
+          values: ["4", "8"]
+        - key: "topology.kubernetes.io/zone"
+          operator: In
+          values: ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+          # values: ["arm64", "amd64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: "deploy-pool"
+          operator: In
+          values: ["default"]
+  limits:
+    cpu: "6000"
+    memory: 200Gi

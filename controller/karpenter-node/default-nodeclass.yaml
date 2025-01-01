@@ -1,0 +1,26 @@
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: karpenter-default
+spec:
+  amiFamily: Bottlerocket
+  subnetSelectorTerms:
+    - tags:
+        Name: demo-vpc-private-ap-southeast-1*
+  securityGroupSelectorTerms:
+    - tags:
+        Name: demo-eks-bottlerocket-node
+  role: "Karpenter-demo-eks-bottlerocket-20250101064902423500000002"
+  amiSelectorTerms:
+    - name: bottlerocket-aws-k8s-1.31-x86_64-v1.29.0-c55d099c
+
+  # Optional, configures storage devices for the instance
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        iops: 10000
+        encrypted: true
+        deleteOnTermination: true
+        throughput: 125
