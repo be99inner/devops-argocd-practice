@@ -92,6 +92,10 @@ karpenter:
   tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
+    - key: control-plane
+      operator: Equals
+      value: "true"
+      effect: NoSchedule
   # -- Additional volumes for the pod.
   extraVolumes: []
   # - name: aws-iam-token
