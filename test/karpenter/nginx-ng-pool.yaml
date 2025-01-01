@@ -3,11 +3,11 @@ kind: Deployment
 metadata:
   labels:
     app: nginx
-  name: nginx-deployment-default
+  name: nginx-deployment-ng
   namespace: default
 spec:
   progressDeadlineSeconds: 600
-  replicas: 3
+  replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -35,7 +35,7 @@ spec:
         terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       nodeSelector:
-        deploy-pool: default
+        deploy-pool: ng
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
